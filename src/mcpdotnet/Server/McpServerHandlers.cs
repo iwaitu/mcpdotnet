@@ -5,7 +5,7 @@ namespace McpDotNet.Server;
 /// <summary>
 /// Container for handlers used in the creation of an MCP server.
 /// </summary>
-public sealed class McpServerHandlers
+internal sealed class McpServerHandlers
 {
     /// <summary>
     /// Gets or sets the handler for list tools requests.

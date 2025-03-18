@@ -66,4 +66,37 @@ public interface IMcpServer : IAsyncDisposable
     /// <param name="message">The message.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     Task SendMessageAsync(IJsonRpcMessage message, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// sets the handler for the call tool request
+    /// </summary>
+    /// <param name="handler"></param>
+    void SetCallToolHandler(Func<RequestContext<CallToolRequestParams>, CancellationToken, Task<CallToolResponse>> handler);
+
+    /// <summary>
+    /// Sets the handler for the list tools request.
+    /// </summary>
+    /// <param name="listToolsHandler"></param>
+    void SetListToolsHandler(Func<RequestContext<ListToolsRequestParams>, CancellationToken, Task<ListToolsResult>> listToolsHandler);
+
+    /// <summary>
+    /// Sets the handler for the list resources request.
+    /// </summary>
+    /// <param name="handler"></param>
+    void SetListResourcesHandler(Func<RequestContext<ListResourcesRequestParams>, CancellationToken, Task<ListResourcesResult>> handler);
+
+    /// <summary>
+    /// Sets the handler for the read resource request.
+    /// </summary>
+    /// <param name="handler"></param>
+    void SetReadResourceHandler(Func<RequestContext<ReadResourceRequestParams>, CancellationToken, Task<ReadResourceResult>> handler);
+    /// <summary>
+    /// Sets the handler for the subscribe to resources request.
+    /// </summary>
+    /// <param name="handler"></param>
+    void SetListPromptsHandler(Func<RequestContext<ListPromptsRequestParams>, CancellationToken, Task<ListPromptsResult>> handler);
+    /// <summary>
+    /// Sets the handler for the get prompt request.
+    /// </summary>
+    /// <param name="handler"></param>
+    void SetGetPromptHandler(Func<RequestContext<GetPromptRequestParams>, CancellationToken, Task<GetPromptResult>> handler);
 }

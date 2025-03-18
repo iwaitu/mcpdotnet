@@ -43,8 +43,7 @@ internal class Program
         };
         var loggerFactory = CreateLoggerFactory();
 
-        McpServerFactory factory = new McpServerFactory(new HttpListenerSseServerTransport("TestServer", 3001, loggerFactory), options, loggerFactory);
-        IMcpServer server = factory.CreateServer();
+        IMcpServer server = McpServerFactory.Create(new HttpListenerSseServerTransport("TestServer", 3001, loggerFactory), options, loggerFactory);
 
         Console.WriteLine("Server object created, registering handlers.");
 
@@ -71,10 +70,12 @@ internal class Program
         #endregion
 
         #region Tools
+        
         server.SetListToolsHandler((request, cancellationToken) =>
         {
             return Task.FromResult(new ListToolsResult()
             {
+        
                 Tools = 
                 [
                     new Tool()                

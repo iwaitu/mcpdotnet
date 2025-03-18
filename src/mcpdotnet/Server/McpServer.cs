@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Nodes;
+using System.Threading;
 using McpDotNet.Logging;
 using McpDotNet.Protocol.Transport;
 using McpDotNet.Protocol.Types;
@@ -102,13 +103,13 @@ internal sealed class McpServer : McpJsonRpcEndpoint, IMcpServer
         }
     }
 
-    private void SetPingHandler()
+    public void SetPingHandler()
     {
         SetRequestHandler<JsonNode, PingResult>("ping", 
             request => Task.FromResult(new PingResult()));
     }
 
-    private void SetInitializeHandler(McpServerOptions options)
+    public void SetInitializeHandler(McpServerOptions options)
     {
         SetRequestHandler<InitializeRequestParams, InitializeResult>("initialize",
             request =>
@@ -201,5 +202,41 @@ internal sealed class McpServer : McpJsonRpcEndpoint, IMcpServer
         CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
         SetRequestHandler<ListToolsRequestParams, ListToolsResult>("tools/list", request => listToolsHandler(new(this, request), cancellationToken));
         SetRequestHandler<CallToolRequestParams, CallToolResponse>("tools/call", request => callToolHandler(new(this, request), cancellationToken));
+    }
+
+    public void SetCallToolHandler(Func<RequestContext<CallToolRequestParams>, CancellationToken, Task<CallToolResponse>> handler)
+    {
+        CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
+        SetRequestHandler<CallToolRequestParams, CallToolResponse>("tools/call", request => handler(new(this, request), cancellationToken));
+    }
+
+    public void SetListToolsHandler(Func<RequestContext<ListToolsRequestParams>, CancellationToken, Task<ListToolsResult>> listToolsHandler)
+    {
+        CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
+        SetRequestHandler<ListToolsRequestParams, ListToolsResult>("tools/list", request => listToolsHandler(new(this, request), cancellationToken));
+    }
+
+    public void SetListResourcesHandler(Func<RequestContext<ListResourcesRequestParams>, CancellationToken, Task<ListResourcesResult>> handler)
+    {
+        CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
+        SetRequestHandler<ListResourcesRequestParams, ListResourcesResult>("resources/list", request => handler(new(this, request), cancellationToken));
+    }
+
+    public void SetReadResourceHandler(Func<RequestContext<ReadResourceRequestParams>, CancellationToken, Task<ReadResourceResult>> handler)
+    {
+        CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
+        SetRequestHandler<ReadResourceRequestParams, ReadResourceResult>("resources/list", request => handler(new(this, request), cancellationToken));
+    }
+    //SetListPromptsHandler
+    public void SetListPromptsHandler(Func<RequestContext<ListPromptsRequestParams>, CancellationToken, Task<ListPromptsResult>> handler)
+    {
+        CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
+        SetRequestHandler<ListPromptsRequestParams, ListPromptsResult>("prompts/list", request => handler(new(this, request), cancellationToken));
+    }
+    //SetGetPromptHandler
+    public void SetGetPromptHandler(Func<RequestContext<GetPromptRequestParams>, CancellationToken, Task<GetPromptResult>> handler)
+    {
+        CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
+        SetRequestHandler<GetPromptRequestParams, GetPromptResult>("prompts/get", request => handler(new(this, request), cancellationToken));
     }
 }
