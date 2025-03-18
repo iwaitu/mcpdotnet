@@ -145,7 +145,8 @@ internal sealed class McpServer : McpJsonRpcEndpoint, IMcpServer
         if (resourcesCapability.ListResourcesHandler is not { } listResourcesHandler ||
             resourcesCapability.ReadResourceHandler is not { } readResourceHandler)
         {
-            throw new McpServerException("Resources capability was enabled, but ListResources and/or ReadResource handlers were not specified.");
+            //throw new McpServerException("Resources capability was enabled, but ListResources and/or ReadResource handlers were not specified.");
+            return;
         }
 
         CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
