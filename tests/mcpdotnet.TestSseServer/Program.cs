@@ -4,6 +4,7 @@ using McpDotNet.Server;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Serilog;
+using System.ComponentModel;
 using System.Text;
 
 internal class Program
@@ -24,6 +25,7 @@ internal class Program
             builder.AddSerilog();
         });
     }
+
 
     private static async Task Main(string[] args)
     {

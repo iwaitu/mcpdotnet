@@ -52,7 +52,7 @@ public interface IMcpClient : IAsyncDisposable
     /// It is recommended to use the capability-specific methods that use this one in their implementation.
     /// Use this method for custom requests or those not yet covered explicitly.
     /// </remarks>
-    Task<TResult> SendRequestAsync<TResult>(JsonRpcRequest request, CancellationToken cancellationToken = default) where TResult : class;
+    Task<TResult> SendRequest<TResult>(JsonRpcRequest request, CancellationToken cancellationToken = default) where TResult : class;
 
     /// <summary>
     /// Sends a message to the server.

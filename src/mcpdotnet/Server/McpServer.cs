@@ -47,9 +47,9 @@ internal sealed class McpServer : McpJsonRpcEndpoint, IMcpServer
         SetInitializeHandler(options);
         SetCompletionHandler(options);
         SetPingHandler();
-        SetToolsHandler(options);
-        SetPromptsHandler(options);
-        SetResourcesHandler(options);
+        //SetToolsHandler(options);
+        //SetPromptsHandler(options);
+        //SetResourcesHandler(options);
     }
 
     public ClientCapabilities? ClientCapabilities { get; set; }

@@ -123,7 +123,7 @@ internal sealed class McpClient : McpJsonRpcEndpoint, IMcpClient
         try
         {
             // Send initialize request
-            var initializeResponse = await SendRequestAsync<InitializeResult>(
+            var initializeResponse = await SendRequest<InitializeResult>(
                 new JsonRpcRequest
                 {
                     Method = "initialize",
