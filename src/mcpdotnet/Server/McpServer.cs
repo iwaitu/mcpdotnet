@@ -47,9 +47,9 @@ internal sealed class McpServer : McpJsonRpcEndpoint, IMcpServer
         SetInitializeHandler(options);
         SetCompletionHandler(options);
         SetPingHandler();
-        //SetToolsHandler(options);
-        //SetPromptsHandler(options);
-        //SetResourcesHandler(options);
+        SetToolsHandler(options);
+        SetPromptsHandler(options);
+        SetResourcesHandler(options);
     }
 
     public ClientCapabilities? ClientCapabilities { get; set; }
@@ -161,7 +161,8 @@ internal sealed class McpServer : McpJsonRpcEndpoint, IMcpServer
         var unsubscribeHandler = resourcesCapability.UnsubscribeFromResourcesHandler;
         if (subscribeHandler is null || unsubscribeHandler is null)
         {
-            throw new McpServerException("Resources capability was enabled with subscribe support, but SubscribeToResources and/or UnsubscribeFromResources handlers were not specified.");
+            //throw new McpServerException("Resources capability was enabled with subscribe support, but SubscribeToResources and/or UnsubscribeFromResources handlers were not specified.");
+            return;
         }
 
         SetRequestHandler<SubscribeRequestParams, EmptyResult>("resources/subscribe", request => subscribeHandler(new(this, request), cancellationToken));
@@ -178,7 +179,8 @@ internal sealed class McpServer : McpJsonRpcEndpoint, IMcpServer
         if (promptsCapability.ListPromptsHandler is not { } listPromptsHandler ||
             promptsCapability.GetPromptHandler is not { } getPromptHandler)
         {
-            throw new McpServerException("Prompts capability was enabled, but ListPrompts and/or GetPrompt handlers were not specified.");
+            //throw new McpServerException("Prompts capability was enabled, but ListPrompts and/or GetPrompt handlers were not specified.");
+            return;
         }
 
         CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
@@ -196,7 +198,8 @@ internal sealed class McpServer : McpJsonRpcEndpoint, IMcpServer
         if (toolsCapability.ListToolsHandler is not { } listToolsHandler ||
             toolsCapability.CallToolHandler is not { } callToolHandler)
         {
-            throw new McpServerException("ListTools and/or CallTool handlers were specified but the Tools capability was not enabled.");
+            //throw new McpServerException("ListTools and/or CallTool handlers were specified but the Tools capability was not enabled.");
+            return;
         }
 
         CancellationToken cancellationToken = CancellationTokenSource?.Token ?? default;
