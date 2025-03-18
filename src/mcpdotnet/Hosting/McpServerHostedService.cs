@@ -23,6 +23,10 @@ public class McpServerHostedService : BackgroundService
         _server = server;
     }
 
+    /// <summary>
+    /// Gets the server instance.
+    /// </summary>
+    public IMcpServer Server { get { return _server; } }
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

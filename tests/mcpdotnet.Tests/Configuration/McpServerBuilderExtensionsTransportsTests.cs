@@ -28,7 +28,7 @@ public class McpServerBuilderExtensionsTransportsTests
         var builder = new Mock<IMcpServerBuilder>();
         builder.SetupGet(b => b.Services).Returns(services);
 
-        builder.Object.WithHttpListenerSseServerTransport();
+        builder.Object.WithHttpListenerSseServerTransport("TestServer",3000);
 
         var transportType = services.FirstOrDefault(s => s.ServiceType == typeof(IServerTransport));
         Assert.NotNull(transportType);

@@ -165,7 +165,7 @@ public static partial class McpServerBuilderExtensions
             {
                 continue;
             }
-
+            
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
             {
                 if (method.GetCustomAttribute<McpToolAttribute>() is not null)

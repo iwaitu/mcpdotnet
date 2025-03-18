@@ -1,0 +1,6 @@
+@mcpdotnet.TestWebApp_HostAddress = http://localhost:5213
+
+GET {{mcpdotnet.TestWebApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

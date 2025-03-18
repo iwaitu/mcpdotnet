@@ -38,7 +38,9 @@ public static class McpServerServiceCollectionExtension
     public static IMcpServerBuilder AddMcpServer(this IServiceCollection services, McpServerOptions serverOptions)
     {
         services.AddSingleton(serverOptions);
-        services.AddHostedService<McpServerHostedService>();
+        //services.AddHostedService<McpServerHostedService>();
+        services.AddSingleton<McpServerHostedService>();
+        //services.AddHostedService(sp => sp.GetRequiredService<McpServerHostedService>());
         services.AddOptions();
         services.AddSingleton(services =>
         {

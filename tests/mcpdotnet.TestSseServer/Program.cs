@@ -46,7 +46,7 @@ internal class Program
         var loggerFactory = CreateLoggerFactory();
 
         IMcpServer server = McpServerFactory.Create(new HttpListenerSseServerTransport("TestServer", 3001, loggerFactory), options, loggerFactory);
-
+        
         Console.WriteLine("Server object created, registering handlers.");
 
         #region Helped method
