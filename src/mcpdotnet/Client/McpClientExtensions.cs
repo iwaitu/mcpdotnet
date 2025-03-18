@@ -40,7 +40,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequest<dynamic>(
+        return client.SendRequestAsync<dynamic>(
             CreateRequest("ping", null),
             cancellationToken);
     }
@@ -79,7 +79,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequest<ListToolsResult>(
+        return client.SendRequestAsync<ListToolsResult>(
             CreateRequest("tools/list", CreateCursorDictionary(cursor)),
             cancellationToken);
     }
@@ -118,7 +118,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequest<ListPromptsResult>(
+        return client.SendRequestAsync<ListPromptsResult>(
             CreateRequest("prompts/list", CreateCursorDictionary(cursor)),
             cancellationToken);
     }
@@ -135,7 +135,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequest<GetPromptResult>(
+        return client.SendRequestAsync<GetPromptResult>(
             CreateRequest("prompts/get", CreateParametersDictionary(name, arguments)),
             cancellationToken);
     }
@@ -173,7 +173,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequest<ListResourcesResult>(
+        return client.SendRequestAsync<ListResourcesResult>(
             CreateRequest("resources/list", CreateCursorDictionary(cursor)),
             cancellationToken);
     }
@@ -188,7 +188,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequest<ReadResourceResult>(
+        return client.SendRequestAsync<ReadResourceResult>(
             CreateRequest("resources/read", new() { ["uri"] = uri }),
             cancellationToken);
     }
@@ -212,7 +212,7 @@ public static class McpClientExtensions
             throw new ArgumentException($"Invalid reference: {validationMessage}", nameof(reference));
         }
 
-        return client.SendRequest<CompleteResult>(
+        return client.SendRequestAsync<CompleteResult>(
             CreateRequest("completion/complete", new()
             {
                 ["ref"] = reference,
@@ -231,7 +231,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequest<EmptyResult>(
+        return client.SendRequestAsync<EmptyResult>(
             CreateRequest("resources/subscribe", new() { ["uri"] = uri }),
             cancellationToken);
     }
@@ -246,7 +246,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequest<EmptyResult>(
+        return client.SendRequestAsync<EmptyResult>(
             CreateRequest("resources/unsubscribe", new() { ["uri"] = uri }),
             cancellationToken);
     }
@@ -263,7 +263,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequest<CallToolResponse>(
+        return client.SendRequestAsync<CallToolResponse>(
             CreateRequest("tools/call", CreateParametersDictionary(toolName, arguments)),
             cancellationToken);
     }

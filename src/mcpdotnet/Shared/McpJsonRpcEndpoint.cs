@@ -215,7 +215,7 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
     /// <param name="request">The JSON-RPC request to send.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A task containing the server's response.</returns>
-    public async Task<TResult> SendRequest<TResult>(JsonRpcRequest request, CancellationToken cancellationToken) where TResult : class
+    public async Task<TResult> SendRequestAsync<TResult>(JsonRpcRequest request, CancellationToken cancellationToken) where TResult : class
     {
         if (!_transport.IsConnected)
         {

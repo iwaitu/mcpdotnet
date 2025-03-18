@@ -58,7 +58,7 @@ public interface IMcpServer : IAsyncDisposable
     /// <param name="request">The JSON-RPC request to send.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A task containing the client's response.</returns>
-    Task<T> SendRequest<T>(JsonRpcRequest request, CancellationToken cancellationToken) where T : class;
+    Task<T> SendRequestAsync<T>(JsonRpcRequest request, CancellationToken cancellationToken) where T : class;
 
     /// <summary>
     /// Sends a message to the server.

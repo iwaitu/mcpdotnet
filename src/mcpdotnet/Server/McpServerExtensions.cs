@@ -25,7 +25,7 @@ public static class McpServerExtensions
             throw new ArgumentException("Client connected to the server does not support sampling.", nameof(server));
         }
 
-        return server.SendRequest<CreateMessageResult>(
+        return server.SendRequestAsync<CreateMessageResult>(
             new JsonRpcRequest { Method = "sampling/createMessage", Params = request },
             cancellationToken);
     }
@@ -195,7 +195,7 @@ public static class McpServerExtensions
             throw new ArgumentException("Client connected to the server does not support roots.", nameof(server));
         }
 
-        return server.SendRequest<ListRootsResult>(
+        return server.SendRequestAsync<ListRootsResult>(
             new JsonRpcRequest { Method = "roots/list", Params = request },
             cancellationToken);
     }
