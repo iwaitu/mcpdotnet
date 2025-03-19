@@ -3,6 +3,7 @@ using McpDotNet.Configuration;
 using McpDotNet.Protocol.Transport;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace McpDotNet.Tests;
 
@@ -11,7 +12,6 @@ public class SseServerIntegrationTestFixture : IDisposable
     private Process _process;
 
     public ILoggerFactory LoggerFactory { get; }
-    public McpClientFactory Factory { get; }
     public McpClientOptions DefaultOptions { get; }
     public McpServerConfig DefaultConfig { get; }
 
@@ -24,7 +24,6 @@ public class SseServerIntegrationTestFixture : IDisposable
         DefaultOptions = new()
         {
             ClientInfo = new() { Name = "IntegrationTestClient", Version = "1.0.0" },
-            Capabilities = new() { Sampling = new(), Roots = new() }
         };
 
         DefaultConfig = new McpServerConfig
@@ -36,16 +35,10 @@ public class SseServerIntegrationTestFixture : IDisposable
             Location = "http://localhost:3001/sse"
         };
 
-        // Inject the mock transport into the factory
-        Factory = new McpClientFactory(
-            [DefaultConfig],
-            DefaultOptions,
-            LoggerFactory
-        );
-
         Start();
     }
 
+    [MemberNotNull(nameof(_process))]
     public void Start()
     {
         // Start the server (which is at TestSseServer.exe on windows and "dotnet TestSseServer.dll" on linux)
@@ -70,7 +63,7 @@ public class SseServerIntegrationTestFixture : IDisposable
     {
         try
         {
-            var client = Factory.GetClientAsync("test_server").Result;
+            var client = McpClientFactory.CreateAsync(DefaultConfig, DefaultOptions, loggerFactory: LoggerFactory).GetAwaiter().GetResult();
             client.DisposeAsync().AsTask().Wait();
             LoggerFactory?.Dispose();
         }

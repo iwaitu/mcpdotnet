@@ -1,13 +1,15 @@
-﻿using System.Collections.Concurrent;
-using System.Text.Json;
-using McpDotNet.Client;
+﻿using McpDotNet.Client;
 using McpDotNet.Logging;
 using McpDotNet.Protocol.Messages;
 using McpDotNet.Protocol.Transport;
 using McpDotNet.Utils;
 using McpDotNet.Utils.Json;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
+using System.Collections.Concurrent;
+using System.Text.Json;
 
 namespace McpDotNet.Shared;
 
@@ -23,7 +25,7 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
     private readonly ITransport _transport;
     private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<IJsonRpcMessage>> _pendingRequests;
     private readonly ConcurrentDictionary<string, List<Func<JsonRpcNotification, Task>>> _notificationHandlers;
-    private readonly Dictionary<string, Func<JsonRpcRequest, Task<object?>>> _requestHandlers = [];
+    private readonly Dictionary<string, Func<JsonRpcRequest, CancellationToken, Task<object?>>> _requestHandlers = [];
     private int _nextRequestId;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ILogger _logger;
@@ -93,7 +95,7 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
                     }
                     catch (Exception ex)
                     {
-                        var payload = JsonSerializer.Serialize(message);
+                        var payload = JsonSerializer.Serialize(message, _jsonOptions.GetTypeInfo<IJsonRpcMessage>());
                         _logger.MessageHandlerError(EndpointName, message.GetType().Name, payload, ex);
                     }
                 }
@@ -175,7 +177,7 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
             try
             {
                 _logger.RequestHandlerCalled(EndpointName, request.Method);
-                var result = await handler(request).ConfigureAwait(false);
+                var result = await handler(request, cancellationToken).ConfigureAwait(false);
                 _logger.RequestHandlerCompleted(EndpointName, request.Method);
                 await _transport.SendMessageAsync(new JsonRpcResponse
                 {
@@ -234,7 +236,7 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
             // Expensive logging, use the logging framework to check if the logger is enabled
             if (_logger.IsEnabled(LogLevel.Debug))
             {
-                _logger.SendingRequestPayload(EndpointName, JsonSerializer.Serialize(request));
+                _logger.SendingRequestPayload(EndpointName, JsonSerializer.Serialize(request, _jsonOptions.GetTypeInfo<JsonRpcRequest>()));
             }
 
             // Less expensive information logging
@@ -254,8 +256,8 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
             if (response is JsonRpcResponse success)
             {
                 // Convert the Result object to JSON and back to get our strongly-typed result
-                var resultJson = JsonSerializer.Serialize(success.Result, _jsonOptions);
-                var resultObject = JsonSerializer.Deserialize<TResult>(resultJson, _jsonOptions);
+                var resultJson = JsonSerializer.Serialize(success.Result, _jsonOptions.GetTypeInfo<object?>());
+                var resultObject = JsonSerializer.Deserialize(resultJson, _jsonOptions.GetTypeInfo<TResult>());
 
                 // Not expensive logging because we're already converting to JSON in order to get the result object
                 _logger.RequestResponseReceivedPayload(EndpointName, resultJson);
@@ -268,7 +270,7 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
 
                 // Result object was null, this is unexpected
                 _logger.RequestResponseTypeConversionError(EndpointName, request.Method, typeof(TResult));
-                throw new McpClientException($"Unexpected response type {JsonSerializer.Serialize(success.Result)}, expected {typeof(TResult)}");
+                throw new McpClientException($"Unexpected response type {JsonSerializer.Serialize(success.Result, _jsonOptions.GetTypeInfo<TResult>())}, expected {typeof(TResult)}");
             }
 
             // Unexpected response type
@@ -293,7 +295,7 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
 
         if (_logger.IsEnabled(LogLevel.Debug))
         {
-            _logger.SendingMessage(EndpointName, JsonSerializer.Serialize(message));
+            _logger.SendingMessage(EndpointName, JsonSerializer.Serialize(message, _jsonOptions.GetTypeInfo<IJsonRpcMessage>()));
         }
 
         return _transport.SendMessageAsync(message, cancellationToken);
@@ -329,18 +331,18 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
     /// <typeparam name="TResponse">Type of response payload (not full RPC response</typeparam>
     /// <param name="method">Method identifier to register for</param>
     /// <param name="handler">Handler to be called when a request with specified method identifier is received</param>
-    protected void SetRequestHandler<TRequest, TResponse>(string method, Func<TRequest?, Task<TResponse>> handler)
+    protected void SetRequestHandler<TRequest, TResponse>(string method, Func<TRequest?, CancellationToken, Task<TResponse>> handler)
     {
         Throw.IfNull(method);
         Throw.IfNull(handler);
 
-        _requestHandlers[method] = async (request) =>
+        _requestHandlers[method] = async (request, cancellationToken) =>
         {
             // Convert the params JsonElement to our type using the same options
-            var jsonString = JsonSerializer.Serialize(request.Params);
-            var typedRequest = JsonSerializer.Deserialize<TRequest>(jsonString, _jsonOptions);
+            var jsonString = JsonSerializer.Serialize(request.Params, _jsonOptions.GetTypeInfo<object?>());
+            var typedRequest = JsonSerializer.Deserialize(jsonString, _jsonOptions.GetTypeInfo<TRequest>());
 
-            return await handler(typedRequest).ConfigureAwait(false);
+            return await handler(typedRequest, cancellationToken).ConfigureAwait(false);
         };
     }
 

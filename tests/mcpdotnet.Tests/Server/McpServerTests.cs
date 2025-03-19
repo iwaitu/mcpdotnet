@@ -280,9 +280,9 @@ public class McpServerTests
         await Can_Handle_Requests(
             serverCapabilities: null,
             method: "completion/complete",
-            configureOptions: options => options with
+            configureOptions: options =>
             {
-                GetCompletionHandler = (request, ct) =>
+                options.GetCompletionHandler = (request, ct) =>
                     Task.FromResult(new CompleteResult
                     {
                         Completion = new()
@@ -291,7 +291,7 @@ public class McpServerTests
                             Total = 2,
                             HasMore = true
                         }
-                    })
+                    });
             },
             assertResult: response =>
             {
@@ -518,14 +518,11 @@ public class McpServerTests
         await Throws_Exception_If_No_Handler_Assigned(new ServerCapabilities { Tools = new() }, "tools/call", "CallTool handler not configured");
     }
 
-    private async Task Can_Handle_Requests(ServerCapabilities? serverCapabilities, string method, Func<McpServerOptions, McpServerOptions>? configureOptions, Action<object> assertResult)
+    private async Task Can_Handle_Requests(ServerCapabilities? serverCapabilities, string method, Action<McpServerOptions>? configureOptions, Action<object> assertResult)
     {
         await using var transport = new TestServerTransport();
         var options = CreateOptions(serverCapabilities);
-        if (configureOptions is not null)
-        {
-            options = configureOptions(options);
-        }
+        configureOptions?.Invoke(options);
 
         await using var server = new McpServer(transport, options, _loggerFactory.Object, _serviceProvider);
 
@@ -606,7 +603,7 @@ public class McpServerTests
             supportsSampling ? new ClientCapabilities { Sampling = new SamplingCapability() } :
             null;
 
-        public async Task<T> SendRequestAsync<T>(JsonRpcRequest request, CancellationToken cancellationToken) where T : class
+        public Task<T> SendRequestAsync<T>(JsonRpcRequest request, CancellationToken cancellationToken) where T : class
         {
             CreateMessageRequestParams rp = Assert.IsType<CreateMessageRequestParams>(request.Params);
 
@@ -630,7 +627,7 @@ public class McpServerTests
                 Role = "assistant",
                 StopReason = "endTurn",
             };
-            return (T)(object)result;
+            return Task.FromResult((T)(object)result);
         }
 
         public ValueTask DisposeAsync() => default;

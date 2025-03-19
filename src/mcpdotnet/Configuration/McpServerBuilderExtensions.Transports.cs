@@ -1,4 +1,5 @@
 ﻿using McpDotNet.Configuration;
+using McpDotNet.Hosting;
 using McpDotNet.Protocol.Transport;
 using McpDotNet.Server;
 using McpDotNet.Utils;
@@ -21,6 +22,7 @@ public static partial class McpServerBuilderExtensions
         Throw.IfNull(builder);
 
         builder.Services.AddSingleton<IServerTransport, StdioServerTransport>();
+        builder.Services.AddHostedService<McpServerHostedService>();
         return builder;
     }
 
@@ -75,9 +77,8 @@ public static partial class McpServerBuilderExtensions
             }
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
 
-            // 使用带有 McpServerOptions 的构造函数创建 HttpListenerSseServerTransport 实例
-            return new HttpListenerSseServerTransport(serverName, port, loggerFactory);
-        });
+        builder.Services.AddSingleton<IServerTransport, HttpListenerSseServerTransport>();
+        builder.Services.AddHostedService<McpServerHostedService>();
         return builder;
     }
 
